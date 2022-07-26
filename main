@@ -1,0 +1,76 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class RandGen_2 {
+public: 
+	int start;
+	int stop;
+	RandGen_2(int a, int b) : numbers() { srand(time(NULL)); start = a; stop = b; }
+	int operator()();
+	private:
+	vector<int> numbers;
+	
+	};
+
+int main(void) {
+	vector<int> lotto(7);
+	vector<int> viking(6);
+	vector<int> euro(5);
+	RandGen_2 genLotto(1, 40), genViking(1, 48), genEuro(1, 50);
+	ostream_iterator<int> out_it(cout, " ");
+
+	for (char cont = 'y'; cont != 'n'; cin >> cont) {
+		
+		cout << "Lotto: ";
+		generate(lotto.begin(), lotto.end(), genLotto);
+		sort(lotto.begin(), lotto.end());
+		copy(lotto.begin(), lotto.end(), out_it);
+
+		cout << endl << "Viking lotto: ";
+		generate(viking.begin(), viking.end(), genViking);
+		sort(viking.begin(), viking.end());
+		copy(viking.begin(), viking.end(), out_it);
+
+		cout << endl << "Euro lotto: ";
+		generate(euro.begin(), euro.end(), genEuro);
+		sort(euro.begin(), euro.end());
+		copy(euro.begin(), euro.end(), out_it);
+
+		cout << endl << "Matching numbers: " << endl;
+		vector<int> match1;
+		set_intersection(lotto.begin(), lotto.end(), viking.begin(), viking.end(), back_inserter(match1));
+		sort(match1.begin(), match1.end());
+		int counter = 0;
+		for_each(match1.begin(), match1.end(), [&counter](const int num) { //printing matches in a fancy way
+			counter++;
+			cout << "#" << counter << ": " << num << endl;
+			});
+	
+		counter = 0;
+		cout << endl << "Matching numbers in three sets: " << endl; //intersections between all three aka between first matches and euro
+		vector<int> match2;
+		set_intersection(match1.begin(), match1.end(), euro.begin(), euro.end(), back_inserter(match2));
+		sort(match2.begin(), match2.end());
+		for_each(match2.begin(), match2.end(), [&counter](const int num) {
+			counter++;
+			cout << "#" << counter << ": " << num << endl;
+			});
+		cout << endl << "Continue? y/n" << endl;
+		}
+}
+
+int RandGen_2::operator()() {
+	int number;
+	do {
+		number = rand() % stop + start;
+	} while (find(numbers.begin(), numbers.end(), number) != numbers.end());
+	numbers.push_back(number);
+	return number;
+}
+
